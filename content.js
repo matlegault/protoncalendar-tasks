@@ -69,14 +69,14 @@
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      
+
       const currentChecked = checkbox.dataset.checked === 'true';
       const newChecked = !currentChecked;
-      
+
       // update ui immediately
       checkbox.innerHTML = newChecked ? CHECK_SVG : UNCHECK_SVG;
       checkbox.dataset.checked = newChecked ? 'true' : 'false';
-      
+
       if (newChecked) {
         titleSpan.style.textDecoration = 'line-through';
         titleSpan.style.opacity = '0.6';
@@ -84,11 +84,15 @@
         titleSpan.style.textDecoration = 'none';
         titleSpan.style.opacity = '1';
       }
-      
+
       // store current state for pending update (use current title text)
       const currentTaskText = titleSpan.textContent.trim();
       const newTitle = newChecked ? `[x] ${currentTaskText}` : `[ ] ${currentTaskText}`;
       eventCell.dataset.pendingTitle = newTitle;
+
+      // Add visual indicator for pending save
+      eventCell.style.outline = '2px solid #179fd9';
+      eventCell.style.outlineOffset = '1px';
     }, true);
   }
 
@@ -96,50 +100,54 @@
   function setupInterceptor() {
     document.addEventListener('click', async (e) => {
       // Check for both all-day and timed event cells
-      const eventCell = e.target.closest('.calendar-dayeventcell') || 
+      const eventCell = e.target.closest('.calendar-dayeventcell') ||
                         e.target.closest('.calendar-eventcell');
       if (!eventCell || !eventCell.dataset.pendingTitle) return;
-      
+
       const newTitle = eventCell.dataset.pendingTitle;
       delete eventCell.dataset.pendingTitle;
-      
+
+      // Remove the outline indicator
+      eventCell.style.outline = '';
+      eventCell.style.outlineOffset = '';
+
       // hide modals
       const hideStyle = document.createElement('style');
       hideStyle.id = 'proton-task-hide-modal';
       hideStyle.textContent = '.modal-two, [role="dialog"], .eventpopover { opacity: 0 !important; pointer-events: none !important; }';
       document.head.appendChild(hideStyle);
-      
+
       try {
         // wait for popover
         await new Promise(resolve => setTimeout(resolve, 400));
-        
+
         const editButton = document.querySelector('button[data-testid="event-popover:edit"]');
         if (!editButton) return;
-        
+
         editButton.click();
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         const titleInput = document.querySelector('#event-title-input');
         if (!titleInput) return;
-        
+
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
         nativeInputValueSetter.call(titleInput, newTitle);
-        
+
         titleInput.dispatchEvent(new Event('input', { bubbles: true }));
         titleInput.dispatchEvent(new Event('change', { bubbles: true }));
-        
+
         await new Promise(resolve => setTimeout(resolve, 150));
-        
+
         const saveButton = document.querySelector('button[data-testid="create-event-modal:save"]');
         if (!saveButton) return;
-        
+
         saveButton.click();
         await new Promise(resolve => setTimeout(resolve, 800));
-        
+
       } finally {
         const style = document.getElementById('proton-task-hide-modal');
         if (style) style.remove();
-        
+
         setTimeout(() => processAllEvents(), 1500);
       }
     }, true);
