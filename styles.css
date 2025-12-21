@@ -20,11 +20,23 @@
   opacity: 0.7;
 }
 
-.calendar-dayeventcell[data-task-processed="true"] .calendar-dayeventcell-title {
+.calendar-dayeventcell[data-task-processed="true"] .calendar-dayeventcell-title,
+.calendar-eventcell[data-task-processed="true"] .calendar-eventcell-title {
   transition: text-decoration 0.2s ease, opacity 0.2s ease;
   vertical-align: middle;
+  display: inline !important;
 }
 
-.calendar-dayeventcell[data-task-processed="true"] .calendar-dayeventcell-inner {
-  align-items: center;
+/* Keep time string on its own line below the title */
+.calendar-eventcell[data-task-processed="true"] .calendar-eventcell-timestring {
+  display: block !important;
 }
+
+.calendar-dayeventcell[data-task-processed="true"] .calendar-dayeventcell-inner,
+.calendar-eventcell[data-task-processed="true"] .calendar-eventcell-inner {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+

@@ -16,7 +16,9 @@
   </svg>`;
 
   function processEventCell(eventCell) {
-    const titleSpan = eventCell.querySelector('.calendar-dayeventcell-title');
+    // Try both all-day and timed event title selectors
+    const titleSpan = eventCell.querySelector('.calendar-dayeventcell-title') || 
+                      eventCell.querySelector('.calendar-eventcell-title');
     if (!titleSpan) return;
 
     const titleText = titleSpan.textContent.trim();
@@ -93,7 +95,9 @@
   // intercept clicks to handle auto-save
   function setupInterceptor() {
     document.addEventListener('click', async (e) => {
-      const eventCell = e.target.closest('.calendar-dayeventcell');
+      // Check for both all-day and timed event cells
+      const eventCell = e.target.closest('.calendar-dayeventcell') || 
+                        e.target.closest('.calendar-eventcell');
       if (!eventCell || !eventCell.dataset.pendingTitle) return;
       
       const newTitle = eventCell.dataset.pendingTitle;
@@ -141,9 +145,14 @@
     }, true);
   }
 
+
   function processAllEvents() {
-    const eventCells = document.querySelectorAll('.calendar-dayeventcell');
-    eventCells.forEach(processEventCell);
+    // Query both all-day events and timed events
+    const allDayEvents = document.querySelectorAll('.calendar-dayeventcell');
+    const timedEvents = document.querySelectorAll('.calendar-eventcell');
+    
+    allDayEvents.forEach(processEventCell);
+    timedEvents.forEach(processEventCell);
   }
 
   function setupObserver() {
