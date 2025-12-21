@@ -26,6 +26,8 @@
     hideStyle.textContent = '.modal-two, [role="dialog"], .eventpopover { opacity: 0 !important; pointer-events: none !important; }';
     document.head.appendChild(hideStyle);
 
+    let refreshTimer = null;
+
     try {
       await new Promise(resolve => setTimeout(resolve, 400));
 
@@ -62,8 +64,10 @@
       void eventCell.offsetHeight;
       eventCell.style.transition = '';
       eventCell.style.opacity = '';
-      setTimeout(() => processAllEvents(), 1500);
+      refreshTimer = setTimeout(() => processAllEvents(), 1500);
     }
+
+    return refreshTimer;
   }
 
   // Auto-trigger save by simulating a click on the event
@@ -153,7 +157,7 @@
     container.insertBefore(checkbox, titleSpan);
 
     // only checkbox is clickable, prevent event modal from opening
-    checkbox.addEventListener('click', async (e) => {
+    checkbox.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
