@@ -24,7 +24,11 @@
 .calendar-eventcell[data-task-processed="true"] .calendar-eventcell-title {
   transition: text-decoration 0.2s ease, opacity 0.2s ease;
   vertical-align: middle;
-  display: inline !important;
+  display: inline-block !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 22px);
 }
 
 /* Keep time string on its own line below the title */
